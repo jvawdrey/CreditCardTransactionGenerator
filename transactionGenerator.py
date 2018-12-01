@@ -160,7 +160,7 @@ def generate_transaction(datafiles, fraud, storeFraudFlag):
 def generate_kafka_data(myConfigs):
 
     transactionNumber = myConfigs['generator']['transactionNumber']
-    transationPercFraud = myConfigs['generator']['transationPercFraud']
+    everyNFraud = myConfigs['generator']['FraudEveryNTransactions']
     sleepBetweenIterations = myConfigs['generator']['sleepBetweenIterations']
     storeFraudFlag = myConfigs['generator']['storeFraudFlag']
 
@@ -173,10 +173,7 @@ def generate_kafka_data(myConfigs):
         logging.critical(message)
         sys.exit()
 
-    everyNFraud = math.ceil(transactionNumber * transationPercFraud)
-
-    if (everyNFraud == 1):
-        logging.warning("Percent fraud * transaction count is less than or equal to 1 - every transaction will be fraud")
+    logging.info("Transaction Generator: Applying fraud signature every {} transactions".format(everyNFraud))
 
     iter_counter = 0
     results = []
@@ -203,7 +200,7 @@ def generate_kafka_data(myConfigs):
 def generate_file_data(myConfigs):
 
     transactionNumber = myConfigs['generator']['transactionNumber']
-    transationPercFraud = myConfigs['generator']['transationPercFraud']
+    everyNFraud = myConfigs['generator']['FraudEveryNTransactions']
     sleepBetweenIterations = myConfigs['generator']['sleepBetweenIterations']
     transactionPerFile = myConfigs['target']['transactionPerFile']
     storeFraudFlag = myConfigs['generator']['storeFraudFlag']
@@ -214,7 +211,6 @@ def generate_file_data(myConfigs):
     batch_counter = 0
     results = []
 
-    everyNFraud = math.ceil(transactionNumber / transationPercFraud)
     logging.info("Transaction Generator: Applying fraud signature every {} transactions".format(everyNFraud))
 
     for i in range(0,transactionNumber):
