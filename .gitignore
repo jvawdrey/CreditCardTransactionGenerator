@@ -6,6 +6,6 @@
 /__pycache__
 
 us_cities_states_counties.csv
-us_cities_states_counties_longlats_southeast.csv
+us_cities_states_counties_longlats_*.csv
 
 myConfigs.yml

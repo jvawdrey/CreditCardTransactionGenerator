@@ -26,7 +26,7 @@ data:
   retailers: "data/us_retailers.csv"
   # Requires columns:
   #   City|State short|City alias|Latitude|Longitude
-  locations: "data/us_cities_states_counties_longlats_ga.csv"
+  locations: "data/ga_locations.csv"
 
 generator:
   # accounts.json
