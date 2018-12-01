@@ -214,7 +214,7 @@ def generate_file_data(myConfigs):
     batch_counter = 0
     results = []
 
-    everyNFraud = math.ceil(transactionNumber * transationPercFraud)
+    everyNFraud = math.ceil(transactionNumber / transationPercFraud)
     logging.info("Transaction Generator: Applying fraud signature every {} transactions".format(everyNFraud))
 
     for i in range(0,transactionNumber):
