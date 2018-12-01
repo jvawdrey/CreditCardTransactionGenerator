@@ -10,6 +10,8 @@ import logging
 from kafka import SimpleProducer, KafkaClient
 import geopy.distance
 
+import fraudSignatures as fs
+
 class myKafka:
     def __init__(self, kafkaClient, kafkaTopic):
         self.client = kafkaClient
@@ -121,7 +123,7 @@ def generate_transaction(datafiles, fraud, storeFraudFlag):
 
     # Create transaction (account dependent amount) - 20%
     if (np.random.rand() < 0.2):
-        trxn_amount = str(round(np.random.normal(acct['trxn_mean'], acct['trx_std']), 2))
+        trxn_amount = str(round(np.random.normal(acct['trxn_mean'], acct['trxn_std']), 2))
 
     # Create transaction (merchant dependent amount) - 80%
     else:
@@ -151,20 +153,7 @@ def generate_transaction(datafiles, fraud, storeFraudFlag):
 
         msg = "***** Generating fraud transaction *****"
         logging.info(msg)
-
-        if (storeFraudFlag == True):
-            trxn['fraud_flag'] = True
-
-        # Starter fraud signatures
-        if (np.random.rand() < 0.8):
-            # large transaction amount for account
-            trxn_amount = str(round(np.random.normal(acct['trxn_mean'], acct['trx_std']) * 1000, 2))
-            trxn['transaction_amount'] = trxn_amount
-        else:
-            # bad merchant
-            trxn['merchant_city'] = 'Moscow'
-            trxn['merchant_state'] = 'Russia'
-            trxn['merchant_name'] = 'ACME Hackers'
+        trxn = fs.transform(trxn, acct, loc)
 
     return trxn
 
@@ -226,13 +215,14 @@ def generate_file_data(myConfigs):
     results = []
 
     everyNFraud = math.ceil(transactionNumber * transationPercFraud)
+    logging.info("Transaction Generator: Applying fraud signature every {} transactions".format(everyNFraud))
 
     for i in range(0,transactionNumber):
         iter_counter += 1
 
         # MOD
         fraud = False
-        if (iter_counter % everyNFraud == 0):
+        if ((iter_counter % everyNFraud) == 0):
             fraud = True
 
         msg = generate_transaction(datafiles, fraud, storeFraudFlag)

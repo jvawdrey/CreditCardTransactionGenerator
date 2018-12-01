@@ -11,11 +11,11 @@ NUM_RECORDS = 2000
 
 # ---------- MERCHANT NAME ----------
 def merchant_name(rnd, merchant_names_df):
-    rec = merchant_names_df[['Name','trxn_mean','trx_std']].sample(1)
+    rec = merchant_names_df[['Name','trxn_mean','trxn_std']].sample(1)
     name = rec['Name'].to_string(index=False)
-    trxn_mean = rec['trxn_mean'].to_string(index=False)
-    trx_std = rec['trx_std'].to_string(index=False)
-    return (name, trxn_mean, trx_std)
+    trxn_mean = float(rec['trxn_mean'].to_string(index=False))
+    trxn_std = float(rec['trxn_std'].to_string(index=False))
+    return (name, trxn_mean, trxn_std)
 
 # ---------- MERCHANT CITY, STATE ----------
 def merchant_city_state(rnd, cities_states_df, restrictToStates):
@@ -38,10 +38,10 @@ def create_merchant_info(rnd, cities_states_df, merchant_names_df, restrictToSta
     merchantInfo = {}
 
     merchantInfo['rlb_location_key'] = 1
-    name, trxn_mean, trx_std = merchant_name(rnd, merchant_names_df)
+    name, trxn_mean, trxn_std = merchant_name(rnd, merchant_names_df)
     merchantInfo['merchant_name'] = name
     merchantInfo['merchant_trxn_mean'] = trxn_mean
-    merchantInfo['merchant_trxn_std'] = trx_std
+    merchantInfo['merchant_trxn_std'] = trxn_std
     city, state, long, lat, alias = merchant_city_state(rnd, cities_states_df, restrictToStates)
     merchantInfo['merchant_city'] = city
     merchantInfo['merchant_state'] = state

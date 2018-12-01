@@ -191,7 +191,7 @@ def create_card_info(myConfigs, rnd, cities_states_df, restrictToStates):
     cardInfo['transaction_radius'] = rnd.randint(myConfigs['generator']['minTransactionRadiusTarget'], myConfigs['generator']['maxTransactionRadiusTarget'])
     mean, stddev = transaction_mean_std(myConfigs, rnd)
     cardInfo['trxn_mean'] = mean
-    cardInfo['trx_std'] = stddev
+    cardInfo['trxn_std'] = stddev
 
     return cardInfo
 
