@@ -14,11 +14,17 @@ target:
   transactionPerFile: 100000
 
 configs:
+  # accounts.json
   createAccountsJson: True
+  # locations.json
   createLocationsJson: True
 
 data:
+  # Requires columns:
+  #   Name|trxn_mean|trx_std
   retailers: "data/us_retailers.csv"
+  # Requires columns:
+  #   City|State short|City alias|Latitude|Longitude
   locations: "data/us_cities_states_counties_longlats_ga.csv"
 
 generator:
