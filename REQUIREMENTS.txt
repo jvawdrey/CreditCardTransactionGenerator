@@ -1,0 +1,4 @@
+pandas
+kafka
+geopy
+numpy
