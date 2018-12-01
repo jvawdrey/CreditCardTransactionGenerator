@@ -3,6 +3,7 @@
 ```bash
 
 # Add config to myConfigs.yml
+cp myConfigsExample.yml myConfigs.yml
 python Generator.py
 
 ```

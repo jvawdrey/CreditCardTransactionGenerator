@@ -1,6 +1,7 @@
 ###############################################
 #
 #  Credit Card Transaction Generator Configs
+#  Change this file to myConfigs.yml
 #
 ###############################################
 
@@ -11,7 +12,7 @@
 
 target:
   type: "json"
-  transactionPerFile: 10000
+  transactionPerFile: 100000
 
 configs:
   # accounts.json
@@ -29,14 +30,14 @@ data:
 
 generator:
   # accounts.json
-  accountsNumber: 6000
+  accountsNumber: 10000
   minTransactionAmountTarget: 10
   maxTransactionAmountTarget: 1000
   minTransactionRadiusTarget: 1
   maxTransactionRadiusTarget: 40
 
   # locations.json
-  merchantsNumber: 4000
+  merchantsNumber: 5000
 
   # transactions
   transactionNumber: 2000000
