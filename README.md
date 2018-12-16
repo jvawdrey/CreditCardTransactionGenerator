@@ -2,6 +2,9 @@
 
 ```bash
 
+# install dependencies
+pip install -r REQUIREMENTS.txt
+
 # Add config to myConfigs.yml
 cp myConfigsExample.yml myConfigs.yml
 python Generator.py
@@ -14,6 +17,7 @@ python Generator.py
 
 # Accounts
 {
+  "account_id": 0,
   "account_number": "2226719519354860",
   "expiration_date": "2/2020",
   "cvv": "317",
@@ -30,6 +34,7 @@ python Generator.py
 
 # Location
 {
+  "location_id": 0,
   "rlb_location_key": 0,
   "merchant_name": "Microsoft Corp",
   "merchant_trxn_mean": 500.0,
@@ -45,6 +50,8 @@ python Generator.py
 # Transaction
 {
   "rlb_location_key": 38,
+  "account_id": 0,
+  "location_id": 0,
   "account_number": "2227412129683430",
   "card_type": "MasterCard",
   "merchant_city": "Guyton",
