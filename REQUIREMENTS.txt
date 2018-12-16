@@ -2,3 +2,4 @@ pandas
 kafka
 geopy
 numpy
+enlighten

@@ -196,6 +196,7 @@ def create_card_info(myConfigs, rnd, cities_states_df, restrictToStates):
 
     cardInfo = {}
 
+    cardInfo['account_id'] =  0
     cardInfo['account_number'] = credit_card_number(rnd, typeList[t][1], typeList[t][2])
     cardInfo['expiration_date'] = month_year(rnd)
     cardInfo['cvv'] = cvv(rnd)
@@ -229,7 +230,9 @@ def accountGenerator(myConfigs, restrictToStates=[]):
 
     for i in range(0,numberOfRecords):
 
-        results.append(create_card_info(myConfigs, generator, cities_states_df, restrictToStates))
+        cardInfo = create_card_info(myConfigs, generator, cities_states_df, restrictToStates)
+        cardInfo['account_id'] = i
+        results.append(cardInfo)
 
     msg = 'Account Generator: {} total account records created'.format(len(results))
     logging.info(msg)

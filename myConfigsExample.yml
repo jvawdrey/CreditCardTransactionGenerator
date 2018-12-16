@@ -12,6 +12,8 @@
 target:
   type: "json"
   transactionPerFile: 10000
+  # Location to create
+  transactionsFileLoctation: "data/"
 
 configs:
   # accounts.json
@@ -27,22 +29,23 @@ data:
   #   City|State short|City alias|Latitude|Longitude
   locations: "data/ga_locations.csv"
 
+
 generator:
   # accounts.json
-  accountsNumber: 20000
+  accountsNumber: 2000
   minTransactionAmountTarget: 10
   maxTransactionAmountTarget: 1000
   minTransactionRadiusTarget: 1
   maxTransactionRadiusTarget: 40
 
   # locations.json
-  merchantsNumber: 10000
+  merchantsNumber: 1000
 
   # transactions
   transactionNumber: 100000
   FraudEveryNTransactions: 100
   storeFraudFlag: True
-  sleepBetweenIterations: 0.001
+  sleepBetweenIterations: 0
 
 constraints:
   states: ["GA"]

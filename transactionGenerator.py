@@ -9,6 +9,7 @@ import sys
 import logging
 from kafka import SimpleProducer, KafkaClient
 import geopy.distance
+import enlighten
 
 import fraudSignatures as fs
 
@@ -66,6 +67,27 @@ class myDataFiles:
         self.uniqueStates = uniqueStates
         self.accounts = accounts
 
+        # Setup progress bar
+        manager = enlighten.get_manager()
+        N = len(self.accounts)
+
+        msg = "Mapping {} locations to {} accounts".format(len(self.locations), N)
+        logging.info(msg)
+        pbar = manager.counter(total=N, desc='Progress', unit='account')
+
+        # build list of locations within "distance" of account holders home address
+        self.accounts_location = {}
+        for a in self.accounts:
+            self.accounts_location[a['account_id']] = []
+            for l in self.locations:
+                dist = geopy.distance.vincenty((a['lat'], a['long']), (l['merchant_lat'],l['merchant_long'])).miles
+                if (dist < a['transaction_radius']):
+                    #l['merchant_distance'] = dist
+                    self.accounts_location[a['account_id']].append(l['location_id'])
+            pbar.update()
+
+        manager.stop()
+
 
 def output_file(filename, records):
     f = open(filename,'w')
@@ -79,31 +101,39 @@ def iterate_transaction_id(datafiles, transaction_id):
         if datafiles.locations[i]['transaction_id'] == transaction_id:
             datafiles.locations[i]['transaction_id'] += 1
 
-def random_location(datafiles, state, long, lat, distance):
+def random_location(datafiles, acct):
 
     # build list of locations within "distance" of account holders home address
     close_locations = []
-    for l in datafiles.locations:
-        dist = geopy.distance.vincenty((lat, long), (l['merchant_lat'],l['merchant_long'])).miles
-        if (dist < distance):
-            l['merchant_distance'] = dist
-            close_locations.append(l)
+    for l in datafiles.accounts_location[acct['account_id']]:
+        try:
+            close_locations.append(datafiles.locations[l])
+        except Exception as e:
+            msg = "Can not find location_id {} in locations".format(l)
+            logging.error(msg)
 
-    msg = "{} total location found within {} miles".format(len(close_locations),distance)
+    #close_locations = []
+    #for l in datafiles.locations:
+    #    dist = geopy.distance.vincenty((lat, long), (l['merchant_lat'],l['merchant_long'])).miles
+    #    if (dist < distance):
+    #        l['merchant_distance'] = dist
+    #        close_locations.append(l)
+
+    msg = "{} total location found within {} miles".format(len(close_locations),acct['transaction_radius'])
     logging.info(msg)
 
     if (close_locations != []):
         loc = random.choice(close_locations)
 
     # no locations found - looks within state
-    elif (state in datafiles.uniqueStatesList):
-        msg = "No merchant found within {} miles - choosing location within state".format(distance)
+    elif (acct['state'] in datafiles.uniqueStatesList):
+        msg = "No merchant found within {} miles - choosing location within state".format(acct['transaction_radius'])
         logging.info(msg)
-        loc = random.choice(datafiles.uniqueStates[state])
+        loc = random.choice(datafiles.uniqueStates[acct['state']])
 
     # final option - pick location at random
     else:
-        msg = "No merchant found within {} miles or state {} - choosing random location".format(distance, state)
+        msg = "No merchant found within {} miles or state {} - choosing random location".format(acct['transaction_radius'], acct['state'])
         logging.info(msg)
         loc = random.choice(datafiles.locations)
 
@@ -118,7 +148,7 @@ def generate_transaction(datafiles, fraud, storeFraudFlag):
     acct = random_account(datafiles)
 
     # Grab random merchant location
-    loc = random_location(datafiles, acct['state'], acct['long'], acct['lat'], acct['transaction_radius'])
+    loc = random_location(datafiles, acct)
     iterate_transaction_id(datafiles, loc['transaction_id'])
 
     # Create transaction (account dependent amount) - 20%
@@ -131,8 +161,10 @@ def generate_transaction(datafiles, fraud, storeFraudFlag):
 
     trxn = {
         'rlb_location_key': loc['rlb_location_key']
+       ,'account_id': acct['account_id']
        ,'account_number': acct['account_number']
        ,'card_type': acct['card_type']
+       ,'location_id': loc['location_id']
        ,'merchant_city': loc['merchant_city']
        ,'merchant_city_alias': loc['merchant_city_alias']
        ,'merchant_name': loc['merchant_name']
@@ -226,7 +258,8 @@ def generate_file_data(myConfigs):
 
         if (iter_counter == transactionPerFile or i == transactionNumber-1):
             filename = 'transactions_{0}.json'.format((str(time.time())).replace('.', ''))
-            output_file(filename, results)
+            locationFilename = '{}{}'.format(myConfigs['target']['transactionsFileLoctation'],filename)
+            output_file(locationFilename, results)
             iter_counter = 0
             results = []
             batch_counter += 1

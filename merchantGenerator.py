@@ -49,7 +49,7 @@ def random_long_lat(long, lat):
 def create_merchant_info(rnd, cities_states_df, merchant_names_df, restrictToStates):
 
     merchantInfo = {}
-
+    merchantInfo['location_id'] = 0
     merchantInfo['rlb_location_key'] = 1
     name, trxn_mean, trxn_std = merchant_name(rnd, merchant_names_df)
     merchantInfo['merchant_name'] = name
@@ -80,6 +80,8 @@ def merchantGenerator(numberOfRecords, dataFiles, restrictToStates=[]):
     for i in range(0,numberOfRecords):
 
         merchant = create_merchant_info(generator, cities_states_df, merchant_names_df, restrictToStates)
+
+        merchant['location_id'] = i;
 
         # check if merchant + city + merchant_city_alias + state already exists
         # TO DO: Change this - very slow
