@@ -36,7 +36,7 @@ if __name__ == '__main__':
     # read configs
     status, myConfigs = readYaml(YAML_FILE)
     if (status == False):
-        logging.critical(exc)
+        logging.critical(myConfigs)
         sys.exit()
 
     try:
