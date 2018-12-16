@@ -10,6 +10,7 @@ import math
 import csv
 import json
 import logging
+import numpy as np
 
 NUM_RECORDS = 10000
 
@@ -142,6 +143,20 @@ def cvv(rnd):
     digit = str(rnd.randint(min, max))
     return (len(str(max))-len(digit))*'0'+digit
 
+# ---------- UNIQUE LONG/LAT ----------
+def random_long_lat(long, lat):
+    # Latitude
+    northSouth = np.random.normal(0.005,0.0001)
+    if (np.random.rand() < 0.5):
+        northSouth = northSouth * -1.0
+
+    # Longitude
+    eastWest = np.random.normal(0.005,0.0001)
+    if (np.random.rand() < 0.5):
+        eastWest = eastWest * -1.0
+
+    return (long + eastWest, lat + northSouth)
+
 # ---------- ACOUNT CITY, STATE ----------
 def account_city_state(rnd, cities_states_df, restrictToStates):
     cols = ['City','State short','City alias','Longitude','Latitude']
@@ -152,8 +167,11 @@ def account_city_state(rnd, cities_states_df, restrictToStates):
     city = rec['City'].to_string(index=False)
     alias = rec['City alias'].to_string(index=False)
     state = rec['State short'].to_string(index=False)
-    long = rec['Longitude'].to_string(index=False)
-    lat = rec['Latitude'].to_string(index=False)
+    long = float(rec['Longitude'].to_string(index=False))
+    lat = float(rec['Latitude'].to_string(index=False))
+
+    long, lat = random_long_lat(long, lat)
+
     return (city, state, long, lat, alias)
 
 
@@ -186,6 +204,8 @@ def create_card_info(myConfigs, rnd, cities_states_df, restrictToStates):
     cardInfo['city'] = city
     cardInfo['city_alias'] = alias
     cardInfo['state'] = state
+
+
     cardInfo['long'] = long
     cardInfo['lat'] = lat
     cardInfo['transaction_radius'] = rnd.randint(myConfigs['generator']['minTransactionRadiusTarget'], myConfigs['generator']['maxTransactionRadiusTarget'])

@@ -8,6 +8,66 @@ python Generator.py
 
 ```
 
+#### Results
+
+```json
+
+# Accounts
+{
+  "account_number": "2226719519354860",
+  "expiration_date": "2/2020",
+  "cvv": "317",
+  "card_type": "MasterCard",
+  "city": "Register",
+  "city_alias": "Register",
+  "state": "GA",
+  "long": "-81.884004",
+  "lat": "32.367124",
+  "transaction_radius": 20,
+  "trxn_mean": 30,
+  "trxn_std": 7
+}
+
+# Location
+{
+  "rlb_location_key": 0,
+  "merchant_name": "Microsoft Corp",
+  "merchant_trxn_mean": 500.0,
+  "merchant_trxn_std": 25.0,
+  "merchant_city": "Wiley",
+  "merchant_state": "GA",
+  "merchant_long": "-83.416275",
+  "merchant_lat": "34.782038",
+  "merchant_city_alias": "Wiley",
+  "transaction_id": 0
+}
+
+# Transaction
+{
+  "rlb_location_key": 38,
+  "account_number": "2227412129683430",
+  "card_type": "MasterCard",
+  "merchant_city": "Guyton",
+  "merchant_city_alias": "Pineora",
+  "merchant_name": "Chick-fil-A",
+  "merchant_state": "GA",
+  "merchant_long": "-81.390096",
+  "merchant_lat": "32.285888",
+  "posting_date": 1543703486.429989,
+  "transaction_amount": "9.25",
+  "transaction_date": 1543703486.429989,
+  "transaction_id": 1,
+  "fraud_flag": false
+}
+
+```
+
+### Notice on Data
+
+Data found in this repo has been simulated or completely made up. The pricing information
+does not accurately reflect actual business sales.
+
+
 ### Kafka Testing
 
 ```bash
@@ -30,3 +90,12 @@ brew services stop kafka
 brew services stop zookeeper
 
 ```
+
+
+docker cp transactions_1543711919078363.json gpdb-ds:/home/gpadmin/transactions_1543711919078363.json
+docker cp transactions_1543712579775396.json gpdb-ds:/home/gpadmin/transactions_1543712579775396.json
+docker cp transactions_1543713236771273.json gpdb-ds:/home/gpadmin/transactions_1543713236771273.json
+docker cp transactions_1543713893938922.json gpdb-ds:/home/gpadmin/transactions_1543713893938922.json
+
+docker cp accounts.json gpdb-ds:/home/gpadmin/accounts.json
+docker cp locations.json gpdb-ds:/home/gpadmin/locations.json

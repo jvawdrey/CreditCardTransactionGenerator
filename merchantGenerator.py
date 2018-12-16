@@ -6,6 +6,7 @@ import math
 import csv
 import json
 import logging
+import numpy as np
 
 NUM_RECORDS = 2000
 
@@ -27,10 +28,22 @@ def merchant_city_state(rnd, cities_states_df, restrictToStates):
     city = rec['City'].to_string(index=False)
     alias = rec['City alias'].to_string(index=False)
     state = rec['State short'].to_string(index=False)
-    long = rec['Longitude'].to_string(index=False)
-    lat = rec['Latitude'].to_string(index=False)
+    long = float(rec['Longitude'].to_string(index=False))
+    lat = float(rec['Latitude'].to_string(index=False))
     return (city, state, long, lat, alias)
 
+def random_long_lat(long, lat):
+    # Latitude
+    northSouth = np.random.normal(0.005,0.0001)
+    if (np.random.rand() < 0.5):
+        northSouth = northSouth * -1.0
+
+    # Longitude
+    eastWest = np.random.normal(0.005,0.0001)
+    if (np.random.rand() < 0.5):
+        eastWest = eastWest * -1.0
+
+    return (long + eastWest, lat + northSouth)
 
 
 def create_merchant_info(rnd, cities_states_df, merchant_names_df, restrictToStates):
@@ -43,6 +56,7 @@ def create_merchant_info(rnd, cities_states_df, merchant_names_df, restrictToSta
     merchantInfo['merchant_trxn_mean'] = trxn_mean
     merchantInfo['merchant_trxn_std'] = trxn_std
     city, state, long, lat, alias = merchant_city_state(rnd, cities_states_df, restrictToStates)
+    long, lat = random_long_lat(long, lat)
     merchantInfo['merchant_city'] = city
     merchantInfo['merchant_state'] = state
     merchantInfo['merchant_long'] = long

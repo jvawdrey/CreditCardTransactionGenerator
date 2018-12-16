@@ -73,10 +73,10 @@ def output_file(filename, records):
         f.write(json.dumps(rec) + '\n')
     f.close()
 
-def iterate_transaction_id(datafiles, rlb_location_key):
+def iterate_transaction_id(datafiles, transaction_id):
     # iterate transaction_id
     for i in range(0,len(datafiles.locations)):
-        if datafiles.locations[i]['rlb_location_key'] == rlb_location_key:
+        if datafiles.locations[i]['transaction_id'] == transaction_id:
             datafiles.locations[i]['transaction_id'] += 1
 
 def random_location(datafiles, state, long, lat, distance):
@@ -119,7 +119,7 @@ def generate_transaction(datafiles, fraud, storeFraudFlag):
 
     # Grab random merchant location
     loc = random_location(datafiles, acct['state'], acct['long'], acct['lat'], acct['transaction_radius'])
-    iterate_transaction_id(datafiles, loc['rlb_location_key'])
+    iterate_transaction_id(datafiles, loc['transaction_id'])
 
     # Create transaction (account dependent amount) - 20%
     if (np.random.rand() < 0.2):
