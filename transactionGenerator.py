@@ -7,6 +7,7 @@ import numpy as np
 import math
 import sys
 import logging
+from datetime import timedelta,datetime
 from kafka import SimpleProducer, KafkaClient
 import geopy.distance
 import enlighten
@@ -82,18 +83,53 @@ class myDataFiles:
             for l in self.locations:
                 dist = geopy.distance.vincenty((a['lat'], a['long']), (l['merchant_lat'],l['merchant_long'])).miles
                 if (dist < a['transaction_radius']):
-                    #l['merchant_distance'] = dist
-                    self.accounts_location[a['account_id']].append(l['location_id'])
+                    l['merchant_distance'] = dist
+                    self.accounts_location[a['account_id']].append(l)
             pbar.update()
 
         manager.stop()
 
+class myTimestamp():
+
+    def __init__(self, minOpen=2, maxClose=23):
+        self.timestamp = datetime.now()
+        self.minOpen = minOpen
+        self.maxClose = maxClose
+
+    # To Do: Make this location specific
+    def newTimestamp(self, loc):
+
+        rnd = int(random.random() * 10)
+        self.timestamp = self.timestamp + timedelta(seconds=rnd)
+
+        dow = self.timestamp.weekday()
+        days = ['mon','tue','wed','thu','fri','sat','sun']
+
+        open = loc['{}{}'.format(days[dow],'_open')]
+        close = loc['{}{}'.format(days[dow],'_close')]
+
+        if self.timestamp.hour < self.minOpen:
+            self.timestamp.replace(hour=self.minOpen)
+
+        if self.timestamp.hour > self.maxClose:
+            N = 24 - self.timestamp.hour + self.minOpen
+            self.timestamp = self.timestamp.replace(minute=0, second=0) + timedelta(hours=N)
+
+        if open == -1 or close == -1 or self.timestamp.hour < open or self.timestamp.hour > close:
+            rnd = int(random.random() * 10)
+            self.timestamp = self.timestamp + timedelta(minutes=rnd)
+            return False
+
+        return time.mktime(self.timestamp.timetuple())
 
 def output_file(filename, records):
-    f = open(filename,'w')
-    for rec in records:
-        f.write(json.dumps(rec) + '\n')
-    f.close()
+    try:
+        f = open(filename,'w')
+        for rec in records:
+            f.write(json.dumps(rec) + '\n')
+        f.close()
+    except Exception as e:
+        logging.error(e)
 
 def iterate_transaction_id(datafiles, transaction_id):
     # iterate transaction_id
@@ -105,12 +141,7 @@ def random_location(datafiles, acct):
 
     # build list of locations within "distance" of account holders home address
     close_locations = []
-    for l in datafiles.accounts_location[acct['account_id']]:
-        try:
-            close_locations.append(datafiles.locations[l])
-        except Exception as e:
-            msg = "Can not find location_id {} in locations".format(l)
-            logging.error(msg)
+    close_locations = datafiles.accounts_location[acct['account_id']]
 
     #close_locations = []
     #for l in datafiles.locations:
@@ -142,7 +173,9 @@ def random_location(datafiles, acct):
 def random_account(datafiles):
     return random.choice(datafiles.accounts)
 
-def generate_transaction(datafiles, fraud, storeFraudFlag):
+def generate_transaction(datafiles, ts, fraud, storeFraudFlag):
+
+    # transaction date
 
     # Grab random account
     acct = random_account(datafiles)
@@ -150,6 +183,10 @@ def generate_transaction(datafiles, fraud, storeFraudFlag):
     # Grab random merchant location
     loc = random_location(datafiles, acct)
     iterate_transaction_id(datafiles, loc['transaction_id'])
+
+    trxnTS = ts.newTimestamp(loc)
+    if trxnTS == False:
+        return False
 
     # Create transaction (account dependent amount) - 20%
     if (np.random.rand() < 0.2):
@@ -173,7 +210,7 @@ def generate_transaction(datafiles, fraud, storeFraudFlag):
        ,'merchant_lat': loc['merchant_lat']
        ,'posting_date': time.time()
        ,'transaction_amount': trxn_amount
-       ,'transaction_date': time.time()
+       ,'transaction_date': trxnTS
        ,'transaction_id': loc['transaction_id']
     }
 
@@ -197,6 +234,7 @@ def generate_kafka_data(myConfigs):
     storeFraudFlag = myConfigs['generator']['storeFraudFlag']
 
     datafiles = myDataFiles()
+    ts = myTimestamp()
 
     mk = myKafka(myConfigs['target']['kafka'], myConfigs['target']['topic'])
     status, message = mk.connect()
@@ -219,15 +257,18 @@ def generate_kafka_data(myConfigs):
             logging.info("***** Generating fraud record *****")
             fraud = True
 
-        msg = generate_transaction(datafiles, fraud, storeFraudFlag)
-        status, message = mk.send(msg)
+        msg = generate_transaction(datafiles, ts, fraud, storeFraudFlag)
+        if msg == False:
+            iter_counter -= 1
+        else:
+            status, message = mk.send(msg)
 
-        if (status == False):
-            logging.error("Error sending message")
-            logging.error(msg)
-            logging.error(message)
+            if (status == False):
+                logging.error("Error sending message")
+                logging.error(msg)
+                logging.error(message)
 
-        time.sleep(sleepBetweenIterations)
+            time.sleep(sleepBetweenIterations)
 
 def generate_file_data(myConfigs):
 
@@ -238,6 +279,7 @@ def generate_file_data(myConfigs):
     storeFraudFlag = myConfigs['generator']['storeFraudFlag']
 
     datafiles = myDataFiles()
+    ts = myTimestamp()
 
     iter_counter = 0
     batch_counter = 0
@@ -253,18 +295,22 @@ def generate_file_data(myConfigs):
         if ((iter_counter % everyNFraud) == 0):
             fraud = True
 
-        msg = generate_transaction(datafiles, fraud, storeFraudFlag)
-        results.append(msg)
+        msg = generate_transaction(datafiles, ts, fraud, storeFraudFlag)
+        if msg == False:
+            iter_counter -= 1
+        else:
 
-        if (iter_counter == transactionPerFile or i == transactionNumber-1):
-            filename = 'transactions_{0}.json'.format((str(time.time())).replace('.', ''))
-            locationFilename = '{}{}'.format(myConfigs['target']['transactionsFileLoctation'],filename)
-            output_file(locationFilename, results)
-            iter_counter = 0
-            results = []
-            batch_counter += 1
+            results.append(msg)
 
-        time.sleep(sleepBetweenIterations)
+            if (iter_counter == transactionPerFile or i == transactionNumber-1):
+                filename = 'transactions_{0}.json'.format((str(time.time())).replace('.', ''))
+                locationFilename = '{}{}'.format(myConfigs['target']['transactionsFileLoctation'],filename)
+                output_file(locationFilename, results)
+                iter_counter = 0
+                results = []
+                batch_counter += 1
+
+            time.sleep(sleepBetweenIterations)
 
 if __name__ == '__main__':
-    generate_file_data(1000000, 0.2, 0.001, 10000)
+    ts = myTimestamp()

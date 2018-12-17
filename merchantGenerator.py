@@ -12,11 +12,16 @@ NUM_RECORDS = 2000
 
 # ---------- MERCHANT NAME ----------
 def merchant_name(rnd, merchant_names_df):
-    rec = merchant_names_df[['Name','trxn_mean','trxn_std']].sample(1)
-    name = rec['Name'].to_string(index=False)
-    trxn_mean = float(rec['trxn_mean'].to_string(index=False))
-    trxn_std = float(rec['trxn_std'].to_string(index=False))
-    return (name, trxn_mean, trxn_std)
+    rec = merchant_names_df[['Name','trxn_mean','trxn_std','sun_open','sun_close','mon_open','mon_close','tue_open','tue_close','wed_open','wed_close','thu_open','thu_close','fri_open','fri_close','sat_open','sat_close']].sample(1)
+    recClean = {}
+    recClean['merchant_name'] = rec['Name'].to_string(index=False)
+    recClean['merchant_trxn_mean'] = float(rec['trxn_mean'].to_string(index=False))
+    recClean['merchant_trxn_std'] = float(rec['trxn_std'].to_string(index=False))
+    days = ['sun','mon','tue','wed','thu','fri','sat']
+    for d in days:
+        recClean['{}_open'.format(d)] = int(rec['{}_open'.format(d)].to_string(index=False))
+        recClean['{}_close'.format(d)] = int(rec['{}_close'.format(d)].to_string(index=False))
+    return recClean
 
 # ---------- MERCHANT CITY, STATE ----------
 def merchant_city_state(rnd, cities_states_df, restrictToStates):
@@ -51,10 +56,11 @@ def create_merchant_info(rnd, cities_states_df, merchant_names_df, restrictToSta
     merchantInfo = {}
     merchantInfo['location_id'] = 0
     merchantInfo['rlb_location_key'] = 1
-    name, trxn_mean, trxn_std = merchant_name(rnd, merchant_names_df)
-    merchantInfo['merchant_name'] = name
-    merchantInfo['merchant_trxn_mean'] = trxn_mean
-    merchantInfo['merchant_trxn_std'] = trxn_std
+
+    merchantRecord = merchant_name(rnd, merchant_names_df)
+
+    merchantInfo.update(merchantRecord)
+
     city, state, long, lat, alias = merchant_city_state(rnd, cities_states_df, restrictToStates)
     long, lat = random_long_lat(long, lat)
     merchantInfo['merchant_city'] = city

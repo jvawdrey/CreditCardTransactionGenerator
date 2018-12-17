@@ -17,9 +17,10 @@ def readYaml(filename):
     with open(filename, 'r') as stream:
         try:
             myConfigs = yaml.load(stream)
-            return True, myConfigs
+            return myConfigs
         except yaml.YAMLError as exc:
-            return False, exc
+            logging.critical(exc)
+            sys.exit()
 
 def checkAndDropFile(filename):
     if os.path.exists(filename):
@@ -34,10 +35,7 @@ if __name__ == '__main__':
     logging.basicConfig(format='%(asctime)s - %(message)s',level=LOGGING_LEVEL)
 
     # read configs
-    status, myConfigs = readYaml(YAML_FILE)
-    if (status == False):
-        logging.critical(myConfigs)
-        sys.exit()
+    myConfigs = readYaml(YAML_FILE)
 
     try:
         restrictToStates = myConfigs['constraints']['states']
