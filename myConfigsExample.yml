@@ -11,7 +11,7 @@
 
 target:
   type: "json"
-  transactionPerFile: 10000
+  transactionPerFile: 100000
   # Location to create
   transactionsFileLoctation: "data/"
 
@@ -23,29 +23,28 @@ configs:
 
 data:
   # Requires columns:
-  #   Name|trxn_mean|trx_std
+  #   Name|trxn_mean|trx_std|sun_open|sun_close|mon_open|mon_close|tue_open|tue_close|wed_open|wed_close|thu_open|thu_close|fri_open|fri_close|sat_open|sat_close
   retailers: "data/us_retailers.csv"
   # Requires columns:
   #   City|State short|City alias|Latitude|Longitude
-  locations: "data/ga_locations.csv"
-
+  locations: "data/ga_fl_sc_nc_al_locations.csv"
 
 generator:
   # accounts.json
-  accountsNumber: 2000
+  accountsNumber: 12000
   minTransactionAmountTarget: 10
   maxTransactionAmountTarget: 1000
   minTransactionRadiusTarget: 1
   maxTransactionRadiusTarget: 40
 
   # locations.json
-  merchantsNumber: 1000
+  merchantsNumber: 5000
 
   # transactions
-  transactionNumber: 100000
-  FraudEveryNTransactions: 100
+  transactionNumber: 1000000
+  FraudEveryNTransactions: 1000
   storeFraudFlag: True
   sleepBetweenIterations: 0
 
 constraints:
-  states: ["GA"]
+  states: ["GA","FL"]
