@@ -280,10 +280,9 @@ def generate_file_data(myConfigs):
 
     transactionNumber = myConfigs['generator']['transactionNumber']
     everyNFraud = myConfigs['generator']['FraudEveryNTransactions']
-    sleepBetweenIterations = myConfigs['generator']['sleepBetweenIterations']
     transactionPerFile = myConfigs['target']['transactionPerFile']
     storeFraudFlag = myConfigs['generator']['storeFraudFlag']
-    storeFraudFlag = myConfigs['generator']['storeFraudFlag']
+
 
     datafiles = myDataFiles()
     ts = myTimestamp()
@@ -317,8 +316,9 @@ def generate_file_data(myConfigs):
                 iter_counter = 0
                 results = []
                 batch_counter += 1
+                time.sleep(myConfigs['generator']['sleepBetweenFiles'])
 
-            time.sleep(sleepBetweenIterations)
+            time.sleep(myConfigs['generator']['sleepBetweenIterations'])
 
 if __name__ == '__main__':
     ts = myTimestamp()

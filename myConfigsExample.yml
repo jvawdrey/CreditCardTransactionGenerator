@@ -45,6 +45,7 @@ generator:
   FraudEveryNTransactions: 1000
   storeFraudFlag: True
   sleepBetweenIterations: 0
+  sleepBetweenFiles: 0
 
 constraints:
   states: ["GA","FL"]
