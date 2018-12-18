@@ -1,6 +1,8 @@
 .DS_STORE
 *.pyc
 *.json
+transactions_*.csv
+transactions_*.json
 
 /notebooks
 /tmp

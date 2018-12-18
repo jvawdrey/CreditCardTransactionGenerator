@@ -59,5 +59,5 @@ if __name__ == '__main__':
     if (myConfigs['target']['type'] == 'kafka'):
         tg.generate_kafka_data(myConfigs)
 
-    elif (myConfigs['target']['type'] == 'json'):
+    elif (myConfigs['target']['type'] in ['json','csv']):
         tg.generate_file_data(myConfigs)

@@ -4,6 +4,8 @@ import time
 import json
 import random
 import numpy as np
+import pandas as pd
+import csv
 import math
 import sys
 import logging
@@ -122,12 +124,16 @@ class myTimestamp():
 
         return time.mktime(self.timestamp.timetuple())
 
-def output_file(filename, records):
+def output_file(filename, records, type='json'):
     try:
-        f = open(filename,'w')
-        for rec in records:
-            f.write(json.dumps(rec) + '\n')
-        f.close()
+        if type == 'csv':
+            df = pd.read_json(json.dumps(records), orient='list')
+            df.to_csv(filename,index=False,quoting=csv.QUOTE_NONNUMERIC)
+        elif type == 'json':
+            f = open(filename,'w')
+            for rec in records:
+                f.write(json.dumps(rec) + '\n')
+            f.close()
     except Exception as e:
         logging.error(e)
 
@@ -277,6 +283,7 @@ def generate_file_data(myConfigs):
     sleepBetweenIterations = myConfigs['generator']['sleepBetweenIterations']
     transactionPerFile = myConfigs['target']['transactionPerFile']
     storeFraudFlag = myConfigs['generator']['storeFraudFlag']
+    storeFraudFlag = myConfigs['generator']['storeFraudFlag']
 
     datafiles = myDataFiles()
     ts = myTimestamp()
@@ -303,9 +310,10 @@ def generate_file_data(myConfigs):
             results.append(msg)
 
             if (iter_counter == transactionPerFile or i == transactionNumber-1):
-                filename = 'transactions_{0}.json'.format((str(time.time())).replace('.', ''))
+
+                filename = 'transactions_{}.{}'.format((str(time.time())).replace('.', ''),myConfigs['target']['type'])
                 locationFilename = '{}{}'.format(myConfigs['target']['transactionsFileLoctation'],filename)
-                output_file(locationFilename, results)
+                output_file(locationFilename, results, myConfigs['target']['type'])
                 iter_counter = 0
                 results = []
                 batch_counter += 1

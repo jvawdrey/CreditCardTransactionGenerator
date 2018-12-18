@@ -10,8 +10,8 @@
 #  topic: "test-topic2"
 
 target:
-  type: "json"
-  transactionPerFile: 100000
+  type: "csv"
+  transactionPerFile: 10000
   # Location to create
   transactionsFileLoctation: "data/"
 
@@ -31,14 +31,14 @@ data:
 
 generator:
   # accounts.json
-  accountsNumber: 12000
+  accountsNumber: 1000
   minTransactionAmountTarget: 10
   maxTransactionAmountTarget: 1000
   minTransactionRadiusTarget: 1
   maxTransactionRadiusTarget: 40
 
   # locations.json
-  merchantsNumber: 5000
+  merchantsNumber: 500
 
   # transactions
   transactionNumber: 1000000
