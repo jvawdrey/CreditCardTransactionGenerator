@@ -12,6 +12,9 @@ echo "PROJ_DIR = $PROJ_DIR"
 echo "DATA_DIR = $DATA_DIR"
 echo "STAGE_DIR = $STAGE_DIR"
 
+LD_LIBRARY_PATH=/home/sridharpaladugu/workspace/CreditCardTransactionGenerator/greenplum
+export LD_LIBRARY_PATH
+
 timestamp()
 {
  date +"%Y-%m-%d %T"
@@ -23,7 +26,7 @@ do
 	echo "moving top 2 files to staging foler $STAGE_DIR ........"
 	for file in `ls -tr $DATA_DIR/transactions*.csv | head -n 2`; do mv $file $STAGE_DIR; done
 	echo "launching gpfdist ........"
-	$BASE_DIR/greenplum/gpfdist -d $STAGE_DIR/ -p 8081 > $PROJ_DIR/logs/$(date "+%Y.%m.%d-%H.%M.%S")_gpfdist.log 2>&1 &
+	$PROJ_DIR/greenplum/gpfdist -d $STAGE_DIR/ -p 8081 > $PROJ_DIR/logs/$(date "+%Y.%m.%d-%H.%M.%S")_gpfdist.log 2>&1 &
 	echo "doing parallel inserts into greenplum table .........."
 	psql -h sp-pde-gpdb.eastus2.cloudapp.azure.com -U gpadmin -d gpadmin -w -f $PROJ_DIR/insert_gp.sql
 	echo "fetching row count ........."
@@ -33,5 +36,5 @@ do
 	echo "moving processed files to archive folder $ARCHIVE_DIR ......." 
 	for file in `ls -tr $STAGE_DIR/transactions*.csv | head -n 2`; do mv $file $ARCHIVE_DIR; done
 	echo "********** FINISHED MICRO BATCH. SLEEPING FOR 20 SECONDS ! ************"
-	sleep 20
+	sleep 5
 done
