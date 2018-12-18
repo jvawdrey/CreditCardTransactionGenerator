@@ -33,7 +33,7 @@ def transform(transaction, account, merchant):
 
         # bad merchant
         transaction['merchant_city'] = 'Moscow'
-        transaction['merchant_state'] = 'Russia'
+        transaction['merchant_state'] = 'RS'
         transaction['merchant_name'] = 'ACME Hackers'
 
     return transaction
