@@ -1,0 +1,51 @@
+###############################################
+#
+#  Credit Card Transaction Generator Configs
+#
+###############################################
+
+#target:
+#  type: "kafka"
+#  kafka: "localhost:9092"
+#  topic: "test-topic2"
+
+target:
+  type: "csv"
+  transactionPerFile: 10000
+  # Location to create
+  transactionsFileLoctation: "data/"
+
+configs:
+  # accounts.json
+  createAccountsJson: True
+  # locations.json
+  createLocationsJson: True
+
+data:
+  # Requires columns:
+  #   Name|trxn_mean|trx_std|sun_open|sun_close|mon_open|mon_close|tue_open|tue_close|wed_open|wed_close|thu_open|thu_close|fri_open|fri_close|sat_open|sat_close
+  retailers: "data/us_retailers.csv"
+  # Requires columns:
+  #   City|State short|City alias|Latitude|Longitude
+  locations: "data/ga_fl_sc_nc_al_locations.csv"
+
+generator:
+  # accounts.json
+  accountsNumber: 1000
+  minTransactionAmountTarget: 10
+  maxTransactionAmountTarget: 1000
+  minTransactionRadiusTarget: 1
+  maxTransactionRadiusTarget: 40
+
+  # locations.json
+  merchantsNumber: 500
+
+  # transactions
+  transactionNumber: 300000
+  FraudEveryNTransactions: 1000
+  storeFraudFlag: True
+  sleepBetweenIterations: 0
+  sleepBetweenFiles: 0
+
+constraints:
+  states: ["GA","FL"]
